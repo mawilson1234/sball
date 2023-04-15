@@ -13,6 +13,10 @@ If you need to include spaces in arguments, make sure to escape them by using si
 - (`pattern`): (required, not named) a glob expression that matches scripts to include in job arrays. Only files ending in `.sh` that match the glob will be included. If a glob expression is insufficient to filter to just the scripts you want, you should use the `regex` argument.
 - Additional arguments are passed to the underlying calls to `sbatch`. This allows you to, e.g., set up job dependencies. They should be inserted _before_ the final, pattern argument.
 
+## NOTE
+
+Currently, `sball` assumes that you will store job array log files in a directory named `joblogs`, located where you run the command. This makes it so that you don't have to manually set up a logging location every time. You should make sure such a directory exists prior to submitting your job array, or it will fail. This behavior may change in the future to be more customizable.
+
 ## Description
 
 `sball` finds all `.sh` scripts matching `pattern` (and `regex`, if provided). If scripts are found, it sorts them into bins with unique sets of SBATCH options (since job arrays must all be run with the same SBATCH options). For each bin, the scripts are added to a job file, where the contents of each script takes up a single line. These files are named `$name.txt`, and are saved in the deepest directory common to all scripts in a bin. In case there is more than one bin, the file is suffixed with their bin number. Then, `dsq` is loaded and called to create a job script from this file with the SBATCH options for that bin. Finally, the created job script is submitted to the queue with `sbatch`, and the (now unnecessary) job script is removed. The `$name.txt` files must be present when the job actually procs in the queue, so they are not removed (and should not be removed until after the jobs finish).
