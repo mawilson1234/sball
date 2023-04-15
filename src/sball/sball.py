@@ -33,7 +33,7 @@ def find_batches(globbed):
 	
 	return batches
 
-def submit_batched_jobs(name, args, batches):
+def submit_batched_jobs(name, args, batches, log_dir = 'joblogs'):
 	print('Submitting jobs in ' + str(len(batches)) + ' array(s).')
 	for i, (options, files) in enumerate(batches.items()):
 		if len(files) == 1:
@@ -79,9 +79,9 @@ def submit_batched_jobs(name, args, batches):
 		x = subprocess.Popen([
 			'dsq', 
 			'--job-file', joblist_file, 
-			'--status-dir', 'joblogs' + os.path.sep,
+			'--status-dir', log_dir + os.path.sep,
 			'--job-name', name + formatter,
-			'--output', os.path.join('joblogs', name + formatter + '-%A_%a.txt'),
+			'--output', os.path.join(log_dir, name + formatter + '-%A_%a.txt'),
 			'--batch-file', os.path.join(dirname, name + formatter + '.sh'),
 			*options, 
 			*args
@@ -119,6 +119,9 @@ def sbatch_all(s):
 	regex = [arg.split('=')[1] for arg in s[:-1] if arg.startswith('regex=')]
 	regex = regex[0] if regex else []
 	
+	log_dir = [arg.split('=')[1] for arg in s[:-1] if arg.startswith('log_dir=')]
+	log_dir = log_dir[0] if log_dir else 'joblogs'
+	
 	globbed = []
 	for script in scripts:
 		globbed.append(glob(script, recursive=True))
@@ -136,13 +139,13 @@ def sbatch_all(s):
 	batches = find_batches(globbed)
 	
 	try:
-		_ = os.system('module load dSQ')
-		submit_batched_jobs(name=name, args=args, batches=batches)
+		submit_batched_jobs(name=name, args=args, batches=batches, log_dir=log_dir)
 	except KeyboardInterrupt:
 		print('User terminated.')
 		sys.exit(0)
 	except Exception:
-		response = input('Error submitting jobs using dSQ. Submit individually (y/n)? ')
+		print('Error submitting jobs using dSQ (did you `module load dSQ` first?).')
+		response = input('Submit individually (y/n)? ')
 		while response not in {'y', 'n'}:
 			response = input('Invalid option. Please enter one of "y", "n": ')	
 		
