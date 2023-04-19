@@ -73,8 +73,9 @@ def submit_batched_jobs(name, args, batches, log_dir = 'joblogs'):
 		with open(joblist_file, 'wt') as out_file:
 			out_file.write(joblist)
 			
-		options = ['--' + k + ' ' + v for k, v in options]
-		options = [i for sublist in [option.split(' ') for option in options] for i in sublist]
+		k_options = ['--' + k for k, _ in options]
+		v_options = [v for _, v in options]
+		options = list(zip(k_options, v_options))
 		
 		x = subprocess.Popen([
 			'dsq', 
