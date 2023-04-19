@@ -86,7 +86,9 @@ def submit_batched_jobs(name, args, batches, log_dir = 'joblogs'):
 			*options, 
 			*args
 		], stdout=subprocess.DEVNULL)
-		time.sleep(2)
+		while x.poll() is None:
+			time.sleep(0.5)
+		
 		x.kill()
 		
 		x = subprocess.Popen([
@@ -94,7 +96,9 @@ def submit_batched_jobs(name, args, batches, log_dir = 'joblogs'):
 			*args,
 			os.path.join(dirname, name + formatter + '.sh')
 		])
-		time.sleep(1)
+		while x.poll() is None:
+			time.sleep(0.5)
+		
 		x.kill()
 		
 		# os.remove(joblist_file)
