@@ -76,6 +76,7 @@ def submit_batched_jobs(name, args, batches, log_dir = 'joblogs'):
 		k_options = ['--' + k for k, _ in options]
 		v_options = [v for _, v in options]
 		options = list(zip(k_options, v_options))
+		options = [v for t in options for v in t]
 		
 		x = subprocess.Popen([
 			'dsq', 
@@ -117,7 +118,7 @@ def sbatch_all(s):
 	except IndexError:
 		raise IndexError('You need to provide some scripts!')
 	
-	args = [arg for arg in s[:-1] if not arg.startswith('name=')]
+	args = [arg for arg in s[:-1] if not arg.startswith('name=') and not arg.startswith('regex=')]
 	name = [arg.split('=')[1] for arg in s[:-1] if arg.startswith('name=')]
 	name = name[0] if name else []
 	

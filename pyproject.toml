@@ -6,7 +6,7 @@ build-backend='setuptools.build_meta'
 
 [project]
 name='sball'
-version='1.0.3'
+version='1.0.5'
 description="Submit scripts in job arrays using Yale's dSQ."
 readme='README.md'
 authors=[{name="Michael Wilson", email='michael.a.wilson@yale.edu'}]
